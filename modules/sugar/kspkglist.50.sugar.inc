@@ -43,7 +43,6 @@ mobile-broadband-provider-info
 
 # Browse
 gnash-plugin
-totem-mozplugin
 
 # Record, Measure, and Jukebox
 gstreamer-python
@@ -54,7 +53,7 @@ python-simplejson
 
 # dependencies for Epub support in Read
 python-BeautifulSoup
-olpc-library
+#olpc-library
 
 # for Tuxmath activity
 SDL_Pango

@@ -63,7 +63,7 @@ make_image()
 
 	dd if=/dev/zero of=$img bs=$BLOCK_SIZE count=0 seek=$(($image_size / $BLOCK_SIZE))
 
-	/sbin/sfdisk -S 32 -H 32 --force -uS $img <<EOF
+	/sbin/sfdisk  --force -uS $img <<EOF
 8192,131072,83,*
 $ROOT_PARTITION_START_BLOCK,,,
 EOF

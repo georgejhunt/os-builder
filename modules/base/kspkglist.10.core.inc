@@ -35,8 +35,6 @@ olpc-kbdshim
 xorg-x11-server-Xorg
 xorg-x11-drv-fbdev
 xorg-x11-drv-evdev
-xorg-x11-drv-keyboard
-xorg-x11-drv-mouse
 xorg-x11-utils
 xorg-x11-xinit
 xorg-x11-xauth

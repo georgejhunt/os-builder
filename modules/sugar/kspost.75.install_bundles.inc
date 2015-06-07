@@ -10,6 +10,6 @@ for i in /build_shared/sugar-bundles/*; do
 	fi
 done
 shopt -u nullglob
-/bin/su -c "/bin/olpc-library-update" - olpc > /dev/null
+#/bin/su -c "/bin/olpc-library-update" - olpc > /dev/null
 
 chown -R olpc:olpc /home/olpc/{Activities,Library}

@@ -29,6 +29,7 @@ remove_original() {
 	local name=$1
 
 	cd $INSTALL_ROOT/boot
+
 	[ -e "$name" ] || return
 
 	if [ -L "$name" ]; then
