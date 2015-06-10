@@ -1,8 +1,7 @@
 # limit tmpfs mounts to 5%
 cat >> /etc/fstab <<EOF
-/tmp            /tmp            tmpfs         rw,size=50m 0 0
-vartmp          /var/tmp        tmpfs         rw,size=50m 0 0
-varlog          /var/log        tmpfs         rw,size=20m 0 0
+/tmp            /tmp            tmpfs         rw,size=500m 0 0
+vartmp          /var/tmp        tmpfs         rw,size=200m 0 0
 EOF
 sed -i -e '/\/dev\/shm/ s/ defaults / defaults,size=50m /' /etc/fstab
 
@@ -57,8 +56,8 @@ sed -i -e "/resolv.conf/d" /etc/rwtab
 
 # also remove /tmp, /var/log and /var/tmp from rwtab, since we put them in fstab
 sed -i -e '/\t\/tmp/d' /etc/rwtab
-sed -i -e '/\t\/var\/tmp/d' /etc/rwtab
-sed -i -e '/\t\/var\/log/d' /etc/rwtab
+#sed -i -e '/\t\/var\/tmp/d' /etc/rwtab
+#sed -i -e '/\t\/var\/log/d' /etc/rwtab
 
 # remove entries from rwtab that we put it in statetab below
 sed -i -e '/\t\/var\/lib\/random-seed/d' /etc/rwtab
@@ -200,7 +199,7 @@ echo "kernel.sysrq = 1" > /usr/lib/sysctl.d/10-olpc.conf
 # /etc/NetworkManager/system-connections, which is a path that we can safely
 # put in statetab. (the rh-ifcfg path in /etc/sysconfig mixes code with data
 # and is hence not appropriate to retain over upgrades)
-sed -i -e 's/^plugins=ifcfg-rh$/plugins=keyfile/g' /etc/NetworkManager/NetworkManager.conf
+#sed -i -e 's/^plugins=ifcfg-rh$/plugins=keyfile/g' /etc/NetworkManager/NetworkManager.conf
 
 # set default plymouth theme
 # we do this with plymouthd.defaults so that plymouth-set-default-theme
