@@ -1,0 +1,2 @@
+
+/home/ghunt/olpc-os-builder/osbuilder.py examples/olpc-os-15.1.0-xo1.0.ini --no-clean-intermediates
