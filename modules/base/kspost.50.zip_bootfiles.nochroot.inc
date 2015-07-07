@@ -1,4 +1,5 @@
 . $OOB__shlib
+set -x
 
 # Put the unsigned kernel/initramfs in zip files and remove the originals
 # This avoids duplication for signed builds (where these zips will be signed

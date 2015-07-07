@@ -1,6 +1,6 @@
 # Copyright (C) 2009 One Laptop Per Child
 # Licensed under the terms of the GNU GPL v2 or later; see COPYING for details.
-
+set -x
 . $OOB__shlib
 versioned_fs=$(read_config base versioned_fs)
 prepopulate_run=$(read_config base prepopulate_run)
@@ -99,7 +99,7 @@ rm -f $fsmount/usr/lib/python2.7/lib2to3/tests/data/py3_test_grammar.py*
 # now regenerate the .pyc files
 # (add -OO to generate .pyo files instead when we tackle dlo trac #8431)
 echo "Compiling python bytecode..."
-chroot $fsmount python -m compileall /usr/lib /usr/share > /dev/null
+#chroot $fsmount python -m compileall /usr/lib /usr/share # > /dev/null
 # now we have to normalize the mtimes of the new pyc/pyo files, but we'll do 
 # that after we've finished making other fs changes below
 
