@@ -1,8 +1,8 @@
 # limit tmpfs mounts to 5%
 cat >> /etc/fstab <<EOF
-/tmp            /tmp            tmpfs         rw,size=50m 0 0
-vartmp          /var/tmp        tmpfs         rw,size=50m 0 0
-varlog          /var/log        tmpfs         rw,size=20m 0 0
+/tmp            /tmp            tmpfs         rw,size=200m 0 0
+vartmp          /var/tmp        tmpfs         rw,size=200m 0 0
+#varlog          /var/log        tmpfs         rw,size=20m 0 0
 EOF
 sed -i -e '/\/dev\/shm/ s/ defaults / defaults,size=50m /' /etc/fstab
 
@@ -47,10 +47,10 @@ sed -i -e '/^ExecStart/aEnvironment=HOME=/root' \
 	/lib/systemd/system/serial-getty\@.service
 
 # Enable tmpfs mounts dictated by rwtab (#9637)
-mkdir -p /security/state
-sed -i -e 's/TEMPORARY_STATE=no/TEMPORARY_STATE=yes/' \
-	-e 's:STATE_MOUNT=.*:STATE_MOUNT=/security/state:' \
-	/etc/sysconfig/readonly-root
+#mkdir -p /security/state
+#sed -i -e 's/TEMPORARY_STATE=no/TEMPORARY_STATE=yes/' \
+#	-e 's:STATE_MOUNT=.*:STATE_MOUNT=/security/state:' \
+#	/etc/sysconfig/readonly-root
 
 # Remove resolv.conf from rwtab so that it can be updated atomically (#2748)
 sed -i -e "/resolv.conf/d" /etc/rwtab
@@ -58,19 +58,21 @@ sed -i -e "/resolv.conf/d" /etc/rwtab
 # also remove /tmp, /var/log and /var/tmp from rwtab, since we put them in fstab
 sed -i -e '/\t\/tmp/d' /etc/rwtab
 sed -i -e '/\t\/var\/tmp/d' /etc/rwtab
-sed -i -e '/\t\/var\/log/d' /etc/rwtab
+#sed -i -e '/\t\/var\/log/d' /etc/rwtab
 
 # remove entries from rwtab that we put it in statetab below
 sed -i -e '/\t\/var\/lib\/random-seed/d' /etc/rwtab
 sed -i -e '/\t\/var\/lib\/dbus/d' /etc/rwtab
 
 # ensure temporary state directory doesn't get too fat (#9636)
-sed -i -e 's/RW_OPTIONS=/RW_OPTIONS="-o size=1M -o nr_inodes=1024"/' /etc/sysconfig/readonly-root
+sed -i -e 's/RW_OPTIONS=/RW_OPTIONS="-o size=4M -o nr_inodes=2048"/' /etc/sysconfig/readonly-root
 
 # Things to store separately in persistent storage
 # This means these files can be writable at runtime without breaking the
 # pristine-ness of /versions/pristine. It also means they are retained
 # over upgrades.
+# for XSCE - we want a writeable file system
+function hidethis(){
 cat >/etc/statetab.d/olpc <<EOF
 /etc/ssh
 /etc/hosts
@@ -79,6 +81,7 @@ cat >/etc/statetab.d/olpc <<EOF
 /var/lib/random-seed
 /etc/NetworkManager/system-connections
 EOF
+}
 
 # make sure statetab is set up before recording a random seed during boot
 # https://bugzilla.redhat.com/show_bug.cgi?id=808907
@@ -197,7 +200,7 @@ echo "kernel.sysrq = 1" > /usr/lib/sysctl.d/10-olpc.conf
 # /etc/NetworkManager/system-connections, which is a path that we can safely
 # put in statetab. (the rh-ifcfg path in /etc/sysconfig mixes code with data
 # and is hence not appropriate to retain over upgrades)
-sed -i -e 's/^plugins=ifcfg-rh$/plugins=keyfile/g' /etc/NetworkManager/NetworkManager.conf
+#sed -i -e 's/^plugins=ifcfg-rh$/plugins=keyfile/g' /etc/NetworkManager/NetworkManager.conf
 
 # set default plymouth theme
 # we do this with plymouthd.defaults so that plymouth-set-default-theme

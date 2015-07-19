@@ -156,7 +156,8 @@ class KspkglistStage(KsStage):
         super(KspkglistStage, self).__init__(osb, "kspkglist")
 
     def on_run(self, output):
-        print >>output, "\n\n\n%packages --excludedocs",
+        #print >>output, "\n\n\n%packages --excludedocs",
+        print >>output, "\n\n\n%packages ",
         if self.osb.cfg.has_option("global", "langs"):
             langs = self.osb.cfg.get("global", "langs").replace(",", ":")
             print >>output, " --instLangs %s" % langs,
