@@ -76,4 +76,4 @@ pygtk2-libglade
 # between Fedora 18 and Fedora 20, the abiword packagers broke out the
 # python support into a new package, and Sugar does not depend on it
 # (#12809).
-python-abiword
+#python-abiword
