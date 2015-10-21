@@ -36,7 +36,7 @@ squeak-vm
 gstreamer-python
 
 python-cjson
-libabiword
+#libabiword --vaguely remember that it is not needed in fc18
 
 # sugar backgrounds from German Ruiz
 # used by sugar-cp-background
