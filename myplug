@@ -1,0 +1,35 @@
+
+[repos]
+custom_repo_7=1,rpmfusion-free-f18,http://download1.rpmfusion.org/free/fedora/releases/18/Everything/i386/os
+custom_repo_8=1,rpmfusion-free-updates-f18,http://download1.rpmfusion.org/free/fedora/updates/18/i386
+custom_repo_9=1,rpmfusion-nonfree-f18,http://download1.rpmfusion.org/nonfree/fedora/releases/18/Everything/i386/os
+custom_repo_10=1,rpmfusion-nonfree-updates-f18,http://download1.rpmfusion.org/nonfree/fedora/updates/18/i386
+custom_repo_11=1,xsce-extra,http://download.unleashkids.org/xsce/repos/xsce-extra
+
+[yumcfg]
+addrepo_7=1,rpmfusion-free-f18,http://download1.rpmfusion.org/free/fedora/releases/18/Everything/i386/os
+addepo_8=1,rpmfusion-free-updates-f18,http://download1.rpmfusion.org/free/fedora/updates/18/i386
+addrepo_9=1,rpmfusion-nonfree-f18,http://download1.rpmfusion.org/nonfree/fedora/releases/18/Everything/i386/os
+addrepo_10=1,rpmfusion-nonfree-updates-f18,http://download1.rpmfusion.org/nonfree/fedora/updates/18/i386
+
+[custom_packages]
+add_packages=
+	gstreamer1-plugins-ugly,
+	gstreamer1-plugins-bad-free-extras,
+	gstreamer1-plugins-bad-freeworld,
+	gstreamer1-plugins-base-tools,
+	gstreamer1-plugins-good-extras,
+	gstreamer1-plugins-bad-free,
+	gstreamer-plugins-ugly,
+	gstreamer-plugins-bad,
+	gstreamer-ffmpeg,
+	flash-plugin,
+	firefox,
+	gstreamer1-libav,
+	git,ansible,tree,vim,avahi,avahi-tools,
+	avahi-ui,bash,gcc,gcc-c++,
+	curl,createrepo,openvpn,pwauth,screen,sudo,tar,
+	unzip,vnstat,wget,wpa_supplicant,mod_ssl,mod_wsgi,
+	nano,net-tools,NetworkManager,nss-mdns,openssl,
+	openssh-server,dhcp
+	
