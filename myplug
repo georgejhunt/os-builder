@@ -24,12 +24,5 @@ add_packages=
 	gstreamer-plugins-bad,
 	gstreamer-ffmpeg,
 	flash-plugin,
-	firefox,
-	gstreamer1-libav,
-	git,ansible,tree,vim,avahi,avahi-tools,
-	avahi-ui,bash,gcc,gcc-c++,
-	curl,createrepo,openvpn,pwauth,screen,sudo,tar,
-	unzip,vnstat,wget,wpa_supplicant,mod_ssl,mod_wsgi,
-	nano,net-tools,NetworkManager,nss-mdns,openssl,
-	openssh-server,dhcp
+	gstreamer1-libav
 	
