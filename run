@@ -1,7 +1,7 @@
 #!/bin/bash
 # script to preserve the intermediates
 start=`date +%s`
-/root/olpc-os-builder/osbuilder.py /root/mksdcard/fc18-enhanced-xo1.ini --no-clean-intermediates myplug 2>&1  | tee -a build/intermediates/build.log
+/root/olpc-os-builder/osbuilder.py /root/mksdcard/fc18_w_plugins-xo1.ini --no-clean-intermediates 2>&1  | tee -a build/intermediates/build.log
 end=`date +%s`
 
 let deltatime=end-start
