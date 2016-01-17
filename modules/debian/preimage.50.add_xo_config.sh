@@ -1,6 +1,8 @@
 #!/bin/bash -x
 #
 . $OOB__shlib
+kernel_url=$(read_config debian kernel_url)
+kernel=$(read_config debian kernel)
 echo "fsmount is $fsmount"
 fsmount=/root/os-builder/build/mnt_fs
 if [ -z $fsmount ]; then
@@ -25,15 +27,22 @@ echo $HOSTNAME > $fsmount/etc/hostname
 sed -i -e "s/localhost/localhost $HOSTNAME/" $fsmount/etc/hosts
 
 echo "Installing modules in chroot"
-chroot $fsmount apt-get -y install locales wpasupplicant rpm2cpio wget acpid acpi olpc-kbdshim olpc-powerd olpc-xo1-hw initramfs-tools sudo
+
+# suppress starting daemons during chroot install
+cat << EOF > $fsmount/usr/sbin/policy-rc.d
+#!/bin/bash
+exit 101
+EOF
+chmod 755 $fsmount/usr/sbin/policy-rc.d
+
+chroot $fsmount  apt-get -y install locales wpasupplicant rpm2cpio wget  olpc-kbdshim olpc-powerd olpc-xo1-hw initramfs-tools sudo
 
 echo set root, and user passwords
 
 hash=`openssl passwd olpc`
 grep olpc $fsmount/etc/passwd
 if [ ! $? -eq 0 ]; then
-  chroot $fsmount adduser --quiet olpc
-  chroot $fsmount usermod -p $hash olpc
+  chroot $fsmount useradd -m -p $hash olpc
   chmod 600 $fsmount/etc/sudoers
   echo "olpc   ALL=(ALL:ALL) ALL" >> $fsmount/etc/sudoers
   chmod 400 $fsmount/etc/sudoers
@@ -74,3 +83,27 @@ if [ $? -ne 0 ]; then
    echo vm.swappiness=5 >> $fsmount/etc/sysctl.conf
 fi
 
+if [ -z $kernel -o -z $kernel_url ]; then
+   echo "empty variables kernel ($kernel) or kernel_url($kernel_url)"
+   exit 1
+fi
+echo "Go fetch the OLPC kernel"
+
+if [ ! -f $cachedir/kernels/$kernel ]; then
+   mkdir -p $cachedir/kernels
+   cd $cachedir/kernels
+   wget $kernel_url/$kernel
+fi
+cd $fsmount
+cp $cachedir/kernels/$kernel .
+rpm2cpio kernel*.rpm | cpio -idmv
+cd $fsmount/boot
+kernel_id=${kernel#"kernel-"}
+kernel_nibble=${kernel_id%".i686.rpm"}
+echo "kernel_nibble is $kernel_nibble"
+mv initrd-$kernel_nibble.img initrd.img-$kernel_nibble
+update-initramfs -t -c -u -k $kernel_nibble
+(cd /boot ; ln -fs initrd.img-$kernel_nibble initrd.img)
+(cd /boot ; ln -fs vmlinuz-$kernel_nibble vmlinuz )
+cd $fsmount
+rm $kernel

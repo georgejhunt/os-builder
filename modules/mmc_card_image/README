@@ -1,0 +1,62 @@
+This module creates ext4 SD card images from the build output. These
+images contain partition tables and 2 partitions.
+
+These images are in the "ZD" format, suitable for flashing via OpenFirmware's
+fs-update command. Corresponding .zsp files are produced too. To disable
+.zd/.zsp creation, set the make_zd option to 0 (default is 1).
+
+By default, a single disk image is produced, with it's size automatically
+calculated based on the size of the data included in the image, plus a small
+amount of free space. The system will resize the partition and filesystem to
+fill the media during first boot. Therefore, other than loading the module,
+no configuration is usually necessary.
+
+If you wish to create multiple images, or if you wish to specify a size,
+you can specify some uniquely-named options starting with "size_". (This
+will disable the default creation of an automatic-sized image as described
+above.)
+
+The value for each of these options is the disk size, optionally followed by
+a comma and a custom extension. There can only be one un-named entry, which
+will default to the extension "zd". The disk size is specified in bytes,
+but the special size "auto" will result in the disk size being calculated
+automatically as described above.
+
+For example:
+[sd_card_image]
+; 3780mb
+size_1=3964665000
+; 1985mb
+size_2=1977614336,zd2
+
+The output files will be:
+
+	(the 3780mb disk output)
+	osXX.zd
+	osXX.zsp
+
+	(the 1985mb disk output)
+	osXX.zd2
+	osXX.zd2.zsp
+
+A "keep_disk_image" option is available, which can be used to retain the
+raw disk image file (basically a file that looks like a block device) that was
+used to produce the ZD image, which you could flash with Linux using the "dd"
+command.
+
+For example:
+
+[sd_card_image]
+keep_disk_image=1
+size_1=3964665000
+
+The output files will be:
+
+	osXX.zd
+	osXX.zsp
+	osXX.zd.disk.img.tar.gz
+
+The raw image file is archived in tar (in sparse mode) and then compressed with
+gzip. Tar preserves the sparseness of the file (the fact that some part of the
+image is made up of unallocated disk blocks). To disable this
+archiving/compression, set the compress_disk_image option to 0 (default is 1).

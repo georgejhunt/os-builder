@@ -4,8 +4,8 @@
 # the following sources os-builder-root/lib/shlib.sh (OOB__shlib is in env)
 . $OOB__shlib
 
-for x in debootstrap chroot make gcc; do
-   which $x
+for x in debootstrap chroot make gcc zip; do
+   which $x >/dev/null
    if [ $? -ne 0 ]; then
       echo -e "\nPlease install $x and run the script again"
       exit 1
