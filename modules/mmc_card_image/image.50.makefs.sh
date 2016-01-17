@@ -2,7 +2,7 @@
 # Licensed under the terms of the GNU GPL v2 or later; see COPYING for details.
 
 . $OOB__shlib
-versioned_fs=$(read_config base versioned_fs)
+versioned_fs=$(read_config mmc_card_image versioned_fs)
 buildnr=$(read_buildnr)
 BLOCK_SIZE=512
 ROOT_PARTITION_START_BLOCK=139264
@@ -73,7 +73,7 @@ make_image()
 8192,131072,83,*
 $ROOT_PARTITION_START_BLOCK,,,
 EOF
-
+sleep 4
 	disk_loop=$(losetup --show --find --partscan $img)
 	boot_loop="${disk_loop}p1"
 	root_loop="${disk_loop}p2"
@@ -84,6 +84,7 @@ EOF
 	while ! [ -e "$boot_loop" ]; do
 		partx -a -v $disk_loop
 		sleep 1
+		echo "waiting for $boot_loop to appear"
 		(( ++i ))
 		[ $i -ge 10 ] && break
 	done
@@ -121,8 +122,7 @@ EOF
 		ln -s boot/alt $BOOT/boot-alt
 		cp -ar $ROOT/versions/pristine/$buildnr/boot/* $tgt
 	else
-		cp -ar $ROOT/boot/* $BOOT
-		ln -s . $BOOT/boot
+		cp -ar $ROOT/boot $BOOT
 	fi
 
 	umount $ROOT
@@ -145,9 +145,12 @@ done
 #[[ ${#sizes[@]} == 0 ]] && make_image auto
 #
 # just use the tree size returned by du
-local usedsize=`du -bs $fsbount`
-local newsize=$(( usedsize + (100*1024*1024) ))
-
+usedsize=`du -sx --block-size=1k $fsmount | awk '{print $1}'`
+echo "du returned $usedsize"
+(( usedsize *= 1024 ))
+echo "multiplied by 1024 $usedsize"
+newsize=$(( usedsize + (100*1024*1024) ))
 # Increase by size of boot partition
 (( newsize += $ROOT_PARTITION_START_BLOCK * $BLOCK_SIZE ))
+echo "add 100M = $newsize"
 make_image $newsize
