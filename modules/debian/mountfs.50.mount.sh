@@ -3,7 +3,6 @@
 
 . $OOB__shlib
 echo "fsmount is $fsmount"
-fsmount=/root/os-builder/build/mnt_fs
 cachedir=/root/os-builder/build/cache
 if [ -z $fsmount -o -z $cachedir ]; then
    echo "fsmount is null. We MUST not  modify parent machine. Aborting . . ."
