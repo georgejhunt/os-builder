@@ -142,12 +142,4 @@ for val in "${sizes[@]}"; do
 done
 
 # If no sizes were specified, create an image with automatic size.
-#[[ ${#sizes[@]} == 0 ]] && make_image auto
-#
-# just use the tree size returned by du
-local usedsize=`du -bs $fsbount`
-local newsize=$(( usedsize + (100*1024*1024) ))
-
-# Increase by size of boot partition
-(( newsize += $ROOT_PARTITION_START_BLOCK * $BLOCK_SIZE ))
-make_image $newsize
+[[ ${#sizes[@]} == 0 ]] && make_image auto
