@@ -2,25 +2,74 @@
 #
 . $OOB__shlib
 
+ap_function=$(read_config debian ap_function)
+
 # for temporary debugging stand alone
 fsmount=/root/os-builder/build/mnt-fs
 
-kernel_url=$(read_config debian kernel$(read_laptop_model_number))
+function fetch_file {
+  k_basename=${$1##*/}
+  if [ ! -f $cachedir/kernels/$k_basename ]; then
+     cd $cachedir/kernels
+      wget $1
+  fi
+}
+
+# which kernel? based upon model and wifi
+xo_type=$(read_laptop_model_number)
+case xo_type in
+0)
+  kernel_url=$(read_config debian kernel0)
+  ;;
+1)
+  if [ $ap_function = "client" ]; then
+    kernel_url=$(read_config debian kernel1)
+  else
+    kernel_url=$(read_config debian kernel_ap)
+  fi
+  ;;
+esac
+
+# which firmware? based upon model and wifi
+xo_type=$(read_laptop_model_number)
+helper_url=
+case xo_type in
+0)
+  firmware_url=$(read_config debia_apn firmware0)
+  ;;
+1)
+  if [ $ap_function = "client" ]; then
+    firmware_url=$(read_config debian firmware1)
+  else
+    firmware_url=$(read_config debian firmware_tf)
+    helper_url=$(read_config debian firmware_tf_helper)
+  fi
+  ;;
+esac
+
+# get the kernel if it is not already in the cache
+mkdir -p $cachedir/kernels
+fetch_file $kernel_url
+fetch_file $firmware_url
+fetch_file $helper_url
+
+# communicate to chroot by files in root
 kernel=${kernel_url##*/}
-echo "kernel_url ($kernel_url) kernel is $kernel"
-if [ -z $kernel -o -z $kernel_url ]; then
-   echo "empty variables kernel ($kernel) or kernel_url($kernel_url)"
-   exit 1
+echo $kernel > $fsmount/root/kernel_name 
+cp -p $cachedir/kernels/$kernel $fsmount
+firmware=${firmware_url##*/}
+cp -p $cachedir/kernels/$firmware $fsmount/lib/firmware
+echo $firmware > $fsmount/root/firmware_name
+if [ ! -z $helper_url ]; then
+   helper=${firmware_url##*/}
+   cp -p $cachedir/kernels/$helper $fsmount/lib/firmware
+   echo $helper > $fsmount/root/helper_name
 fi
 
-echo "Go fetch the OLPC kernel"
-if [ ! -f $cachedir/kernels/$kernel ]; then
-   mkdir -p $cachedir/kernels
-   cd $cachedir/kernels
-   wget $kernel_url
-fi
-cp -p $cachedir/kernels/$kernel $fsmount
-echo $kernel > $fsmount/root/kernel_name 
+desktop=$(read_config debian desktop)
+
+
+echo $desktop > $fsmount/root/desktop 
 
  
 echo "fsmount is $fsmount"
@@ -60,14 +109,6 @@ vartmp          /var/tmp        tmpfs         rw,size=50m 0 0
 varlog          /var/log        tmpfs         rw,size=20m 0 0
 _FSTAB
 
-# get wifi firmware
-mkdir -p /lib/firmware/libertas
-ls /lib/firmware/libertas|grep usb8388
-if [ ! -f /lib/firmware/libertas/usb8388.bin ]; then
-  cd /lib/firmware/libertas
-  wget -O usb8388.bin http://dev.laptop.org/pub/firmware/libertas/usb8388-5.110.22.p23.bin
-fi
-
 if [ ! -f /swapfile ]; then
   dd if=/dev/zero of=/swapfile bs=1M count=512
   mkswap /swapfile
@@ -95,7 +136,7 @@ fi
 cd /
 rpm2cpio kernel*.rpm | cpio -idmv
 cd /boot
-kernel=`cat /root/kernel_name`
+kernel=\$(cat /root/kernel_name)
 kernel_id=\${kernel#"kernel-"}
 kernel_nibble=\${kernel_id%".i686.rpm"}
 echo "kernel_nibble is \$kernel_nibble"
@@ -104,7 +145,27 @@ update-initramfs -t -c -u -k \$kernel_nibble
 (cd /boot ; ln -fs initrd.img-\$kernel_nibble initrd.img)
 (cd /boot ; ln -fs vmlinuz-\$kernel_nibble vmlinuz )
 
-cd / 
+cat << _FTH > /boot/olpc.fth
+\ Debian Jessie for XO
+visible
+" last:\boot\initrd.img" to ramdisk
+" last:\boot\vmlinuz" to boot-device
+" console=tty0 fbcon=font:SUN12x22 root=/dev/mmcblk0p2" to boot-file
+boot
+_FTH
+
+cd /root
+
+# install a desktop environment
+if [ -f /root/desktop ]; then
+   desktop=\$(cat /root/desktop)
+else
+   desktop=
+fi
+if [ ! -z $desktop ]; then
+   apt-get install -y $desktop
+fi
+
 #rm $kernel
 #rm /root/kernel_name
 EOF

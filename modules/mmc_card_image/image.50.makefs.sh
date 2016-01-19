@@ -128,6 +128,7 @@ sleep 4
 	umount $ROOT
 	umount $BOOT
 	losetup -d $disk_loop || :
+        losetup -D
 
 	# FIXME: any value to running e2fsck now? maybe with -D ?
 }
