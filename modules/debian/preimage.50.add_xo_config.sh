@@ -23,19 +23,6 @@ cp -p $cachedir/kernels/$kernel $fsmount
 echo $kernel > $fsmount/root/kernel_name 
 
  
-# set up the chroot
-mkdir -p $fsmount/dev
-mount -o bind /dev $fsmount/dev
-mkdir -p $fsmount/proc
-mount -o bind /proc $fsmount/proc
-mkdir -p $fsmount/sys
-mount -o bind /sys $fsmount/sys
-mkdir -p $fsmount/tmp
-mount -o bind /tmp $fsmount/tmp
-cp -f /etc/resolv.conf $fsmount/etc/resolv.conf
-cp $cachedir/kernels/$kernel $fsmount
-cp -f /etc/resolv.conf $fsmount/etc/resolv.conf
-
 echo "fsmount is $fsmount"
 if [ -z $fsmount ]; then
    echo "fsmount is null. We MUST not  modify parent machine. Aborting . . ."
@@ -102,7 +89,7 @@ fi
 
 apt-get -y install sudo wget rpm2cpio cpio initramfs-tools locales wpasupplicant  olpc-kbdshim olpc-powerd olpc-xo1-hw openssl
 
-echo set root, and user passwords
+# set root, and user passwords
 hash=`openssl passwd olpc`
 grep olpc /etc/passwd
 if [ ! $? -eq 0 ]; then
@@ -129,5 +116,23 @@ rm $kernel
 rm /root/kernel_name
 EOF
 
+# set up the chroot
+mkdir -p $fsmount/dev
+mount -o bind /dev $fsmount/dev
+mkdir -p $fsmount/proc
+mount -o bind /proc $fsmount/proc
+mkdir -p $fsmount/sys
+mount -o bind /sys $fsmount/sys
+mkdir -p $fsmount/tmp
+mount -o bind /tmp $fsmount/tmp
+cp -f /etc/resolv.conf $fsmount/etc/resolv.conf
+
 # now execute the script 
 chroot $fsmount /root/preimage.sh
+
+# unmount bind mounted dirs
+umount $fsmount/dev
+umount $fsmount/proc
+umount $fsmount/sys
+umount $fsmount/tmp
+
