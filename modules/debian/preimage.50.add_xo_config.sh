@@ -34,13 +34,6 @@ fi
 cat << EOF > $fsmount/root/preimage.sh
 #!/bin/bash -x
 
-# trap errors and report their line number
-function _debug{
-  echo error trapped at line number $LINENO
-}
-trap _debug ERR
-trap - EXIT
-
 # set up a hostname
 HOSTNAME=debian_xo1
 echo $HOSTNAME > /etc/hostname
@@ -80,7 +73,7 @@ if [ ! -f /swapfile ]; then
   mkswap /swapfile
 fi
 
-apt-get clean
+#apt-get clean
 
 grep swappiness /etc/sysctl.conf
 if [ $? -ne 0 ]; then
@@ -103,18 +96,20 @@ cd /
 rpm2cpio kernel*.rpm | cpio -idmv
 cd /boot
 kernel=`cat /root/kernel_name`
-kernel_id=${kernel#"kernel-"}
-kernel_nibble=${kernel_id%".i686.rpm"}
-echo "kernel_nibble is $kernel_nibble"
-mv initrd-$kernel_nibble.img initrd.img-$kernel_nibble
-update-initramfs -t -c -u -k $kernel_nibble
-(cd /boot ; ln -fs initrd.img-$kernel_nibble initrd.img)
-(cd /boot ; ln -fs vmlinuz-$kernel_nibble vmlinuz )
+kernel_id=\${kernel#"kernel-"}
+kernel_nibble=\${kernel_id%".i686.rpm"}
+echo "kernel_nibble is \$kernel_nibble"
+mv initrd-\$kernel_nibble.img initrd.img-\$kernel_nibble
+update-initramfs -t -c -u -k \$kernel_nibble
+(cd /boot ; ln -fs initrd.img-\$kernel_nibble initrd.img)
+(cd /boot ; ln -fs vmlinuz-\$kernel_nibble vmlinuz )
 
 cd / 
-rm $kernel
-rm /root/kernel_name
+#rm $kernel
+#rm /root/kernel_name
 EOF
+# and make it executable
+chmod 755 $fsmount/root/preimage.sh
 
 # set up the chroot
 mkdir -p $fsmount/dev
