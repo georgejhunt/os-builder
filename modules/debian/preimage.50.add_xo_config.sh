@@ -19,7 +19,6 @@ function fetch_file {
 
 # for temporary debugging stand alone
 fsmount=/root/os-builder/build/mnt-fs
-echo after functions--kernel1 is $kernel1
 
 # which kernel? based upon model and wifi
 xo_type=$(read_laptop_model_number)
@@ -35,8 +34,6 @@ case $xo_type in
   fi
   ;;
 esac
-echo "kernel debug: xo_type=$xo_type, wifi_function=$wifi_function"
-echo "kernel_url=$kernel_url"
 
 # which firmware? based upon model and wifi
 xo_type=$(read_laptop_model_number)
@@ -48,19 +45,17 @@ case $xo_type in
 1)
   if [ $wifi_function = "client" ]; then
       firmware_url=$(read_config debian firmware1)
+      helper_url=$(read_config debian firmware1_helper)
+
   else
      firmware_url=$(read_config debian firmware_tf)
      helper_url=$(read_config debian firmware_tf_helper)
   fi
   ;;
 esac
-echo -e "\nfirmware debug: xo_type=$xo_type, wifi_function=$wifi_function"
-echo firmware_url=$firmware_url
-echo helper_url=$helper_url
 
 # get the kernel if it is not already in the cache
 mkdir -p $cachedir/kernels
-echo "urls: kernel $kernel_url,$firmware_url,$helper_url"
 fetch_file $kernel_url
 fetch_file $firmware_url
 if [ ! -z $helper_url ];then
@@ -79,14 +74,6 @@ if [ ! -z $helper_url ]; then
    helper=${firmware_url##*/}
    cp -p $cachedir/kernels/$helper $fsmount/lib/firmware
    echo $helper > $fsmount/root/helper_name
-fi
-
-
- 
-echo "fsmount is $fsmount"
-if [ -z $fsmount ]; then
-   echo "fsmount is null. We MUST not  modify parent machine. Aborting . . ."
-   exit 1
 fi
 
 # create the script that will be executed in the chroot
@@ -132,18 +119,16 @@ if [ $? -ne 0 ]; then
    echo vm.swappiness=5 >> /etc/sysctl.conf
 fi
 
-apt-get -y install sudo wget rpm2cpio cpio initramfs-tools locales wpasupplicant  olpc-kbdshim olpc-powerd olpc-xo1-hw openssl
+apt-get -y install sudo wget rpm2cpio cpio initramfs-tools locales wpasupplicant  olpc-kbdshim olpc-powerd olpc-xo1-hw openssl network-manager
 
 # set root, and user passwords
 hash=`openssl passwd olpc`
 grep olpc /etc/passwd
-if [ ! $? -eq 0 ]; then
-  useradd -m -p $hash olpc
+  useradd -m -p \$hash olpc
   chmod 600 /etc/sudoers
   echo "olpc   ALL=(ALL:ALL) ALL" >> /etc/sudoers
   chmod 400 /etc/sudoers
-fi
-
+  usermod -p \$hash root
 cd /
 rpm2cpio kernel*.rpm | cpio -idmv
 cd /boot
@@ -173,8 +158,8 @@ if [ -f /root/desktop ]; then
 else
    desktop=
 fi
-if [ ! -z $desktop ]; then
-   apt-get install -y $desktop
+if [ ! -z \$desktop ]; then
+   apt-get install -y \$desktop iceweasel
 fi
 
 #rm $kernel

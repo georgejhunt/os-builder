@@ -151,7 +151,8 @@ echo "du returned $usedsize"
 (( usedsize *= 1024 ))
 echo "multiplied by 1024 $usedsize"
 newsize=$(( usedsize + (100*1024*1024) ))
+twenty5pct=$(( newsize / 4 ))
 # Increase by size of boot partition
-(( newsize += $ROOT_PARTITION_START_BLOCK * $BLOCK_SIZE ))
+(( newsize += $ROOT_PARTITION_START_BLOCK * $BLOCK_SIZE + $twenty5pct ))
 echo "add 100M = $newsize"
 make_image $newsize

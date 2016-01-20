@@ -6,6 +6,7 @@ compress=$(read_config sd_card_image compress_disk_image)
 keep_img=$(read_config sd_card_image keep_disk_image)
 make_zd=$(read_config sd_card_image make_zd)
 osname=$(image_name)
+customization_info=$(read_config global customization_info)
 
 function make_zd() {
 	local ext=$1
@@ -17,7 +18,7 @@ function make_zd() {
 
 	if [[ "$make_zd" == 1 ]]; then
 		echo "Making ZD image for $output_name..."
-		$bindir/zhashfs 0x20000 sha256 $diskimg $output.zsp $output
+		$bindir/zhashfs 0x20000 sha256 $diskimg $output.zsp $output.$customization_info
 
 		echo "Creating MD5sum of $output_name..."
 		pushd $outputdir >/dev/null
