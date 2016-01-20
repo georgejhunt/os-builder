@@ -119,7 +119,7 @@ if [ $? -ne 0 ]; then
    echo vm.swappiness=5 >> /etc/sysctl.conf
 fi
 
-apt-get -y install sudo wget rpm2cpio cpio initramfs-tools locales wpasupplicant  olpc-kbdshim olpc-powerd olpc-xo1-hw openssl network-manager
+apt-get -y install sudo wget rpm2cpio cpio initramfs-tools locales wpasupplicant  olpc-kbdshim olpc-powerd olpc-xo1-hw openssl network-manager openssh-client lightdm
 
 # set root, and user passwords
 hash=`openssl passwd olpc`
