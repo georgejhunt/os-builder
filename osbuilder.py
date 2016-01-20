@@ -201,6 +201,48 @@ class PreImageStage(Stage):
     def __init__(self, osb):
         super(PreImageStage, self).__init__(osb, "preimage")
 
+    def on_run_part(self, mod, part, output):
+        path = os.path.join(self.osb.moddir, mod, part)
+        inchroot = ".inchroot." in part
+        if path.endswith(".sh"):
+            if inchroot:
+                back = os.open('.', os.O_READONLY)
+                debian = os.open(self.fsmount) 
+                subprocess.check_call(["mount","-o","bind","/dev","%s/dev"%self.fsmount])
+                subprocess.check_call(["mount","-o","bind","/proc","%s/proc"%self.fsmount])
+                subprocess.check_call(["mount","-o","bind","/sys","%s/sys"%self.fsmount])
+                subprocess.check_call(["mount","-o","bind","/tmp","%s/tmp"%self.fsmount])
+                subprocess.check_call(["cp","path","%s/tmp"%self.fsmount])
+                os.chroot(debian)
+                proc = subprocess.Popen(["/bin/bash", "/tmp/%s"%part], shell=False,
+                                        stdout=outtype, env=self.osb.env)
+                try:
+                    (out, err) = proc.communicate()
+                except (Exception, KeyboardInterrupt), e:
+                    proc.terminate()
+                    raise StageException(mod, part, repr(e))
+                fchdir(back)
+                os.close(debian)
+                os.close(back)
+                subprocess.check_call(["umount","%s/dev"%self.fsmount])
+                subprocess.check_call(["umount","%s/proc"%self.fsmount])
+                subprocess.check_call(["umount","%s/sys"%self.fsmount])
+                subprocess.check_call(["umount","%s/tmp"%self.fsmount])
+            else:
+                proc = subprocess.Popen(["/bin/bash", path], shell=False,
+                                        stdout=outtype, env=self.osb.env)
+                try:
+                    (out, err) = proc.communicate()
+                except (Exception, KeyboardInterrupt), e:
+                    proc.terminate()
+                    raise StageException(mod, part, repr(e))
+
+                if not self.ignore_failures and proc.returncode != 0:
+                    raise StageException(mod, part, proc.returncode)
+                if not self.console_output:
+                    output.write(out)
+
+
 class ImageStage(Stage):
     def __init__(self, osb):
         super(ImageStage, self).__init__(osb, "image")
