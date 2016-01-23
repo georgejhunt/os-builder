@@ -35,6 +35,8 @@ import re
 import time
 import pipes
 from optparse import OptionParser
+from IPython.core.debugger import Pdb
+ipdb = Pdb()
 
 class StageException(Exception):
     def __init__(self, module, part, code):
@@ -203,31 +205,39 @@ class PreImageStage(Stage):
 
     def on_run_part(self, mod, part, output):
         path = os.path.join(self.osb.moddir, mod, part)
+        if self.console_output:
+            outtype = None
+        else:
+            outtype = subprocess.PIPE
         inchroot = ".inchroot." in part
         if path.endswith(".sh"):
             if inchroot:
-                back = os.open('.', os.O_READONLY)
-                debian = os.open(self.fsmount) 
-                subprocess.check_call(["mount","-o","bind","/dev","%s/dev"%self.fsmount])
-                subprocess.check_call(["mount","-o","bind","/proc","%s/proc"%self.fsmount])
-                subprocess.check_call(["mount","-o","bind","/sys","%s/sys"%self.fsmount])
-                subprocess.check_call(["mount","-o","bind","/tmp","%s/tmp"%self.fsmount])
-                subprocess.check_call(["cp","path","%s/tmp"%self.fsmount])
-                os.chroot(debian)
-                proc = subprocess.Popen(["/bin/bash", "/tmp/%s"%part], shell=False,
+                subprocess.check_call("mount -o bind /dev %s/dev"%self.osb.fsmount, shell=True)
+                subprocess.check_call(["mount","-o","bind","/proc","%s/proc"%self.osb.fsmount])
+                subprocess.check_call(["mount","-o","bind","/sys","%s/sys"%self.osb.fsmount])
+                subprocess.check_call(["mkdir","-p","%s/tmp"%self.osb.fsmount])
+                subprocess.check_call(["mount","-o","bind","/tmp","%s/tmp"%self.osb.fsmount])
+                subprocess.check_call(["cp","/etc/resolv.conf","%s/etc"%self.osb.fsmount])
+
+                real_root = os.open('/', os.O_RDONLY)
+                os.chroot(self.osb.fsmount)
+                proc = subprocess.Popen(["/bin/bash", "/root/%s"%part], shell=False,
                                         stdout=outtype, env=self.osb.env)
                 try:
                     (out, err) = proc.communicate()
                 except (Exception, KeyboardInterrupt), e:
                     proc.terminate()
                     raise StageException(mod, part, repr(e))
-                fchdir(back)
-                os.close(debian)
-                os.close(back)
-                subprocess.check_call(["umount","%s/dev"%self.fsmount])
-                subprocess.check_call(["umount","%s/proc"%self.fsmount])
-                subprocess.check_call(["umount","%s/sys"%self.fsmount])
-                subprocess.check_call(["umount","%s/tmp"%self.fsmount])
+                finally:
+                    subprocess.check_call(["sync"])
+                    os.fchdir(real_root)
+                    os.chroot(".")
+                    os.close(real_root)
+
+                    subprocess.check_call(["umount","%s/dev"%self.osb.fsmount])
+                    subprocess.check_call(["umount","%s/proc"%self.osb.fsmount])
+                    subprocess.check_call(["umount","%s/sys"%self.osb.fsmount])
+                    subprocess.check_call(["umount","%s/tmp"%self.osb.fsmount])
             else:
                 proc = subprocess.Popen(["/bin/bash", path], shell=False,
                                         stdout=outtype, env=self.osb.env)

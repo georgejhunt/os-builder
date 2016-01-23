@@ -1,12 +1,12 @@
 #!/bin/bash -x
 #
 . $OOB__shlib
+if [ -z $fsmount ]; then
+    . /root/os-builder/build/intermediates/env
+    . /root/os-builder/lib/shlib.sh
+fi
 wifi_function=$(read_config debian wifi_function)
-
-function report {
-  echo "error on line number $LINENO"
-}
-trap report ERR
+oobdir=${libdir%/*}  # clip off the trailing /lib
 
 function fetch_file {
   url=$1
@@ -16,9 +16,6 @@ function fetch_file {
       wget $1
   fi
 }
-
-# for temporary debugging stand alone
-fsmount=/root/os-builder/build/mnt-fs
 
 # which kernel? based upon model and wifi
 xo_type=$(read_laptop_model_number)
@@ -63,15 +60,20 @@ if [ ! -z $helper_url ];then
 fi
 # communicate to chroot by files in root
 kernel=${kernel_url##*/}
+mkdir -p $fsmount/root
 echo $kernel > $fsmount/root/kernel_name 
 cp -p $cachedir/kernels/$kernel $fsmount
 firmware=${firmware_url##*/}
-mkdir -p $fsmount/lib/firmware
+mkdir -p $fsmount/lib/firmware/libertas
 cp -p $cachedir/kernels/$firmware $fsmount/lib/firmware
+cp -p $cachedir/kernels/$firmware $fsmount/lib/firmware/libertas
 echo $firmware > $fsmount/root/firmware_name
 if [ ! -z $helper_url ]; then
    helper=${firmware_url##*/}
    cp -p $cachedir/kernels/$helper $fsmount/lib/firmware
+   cp -p $cachedir/kernels/$helper $fsmount/lib/firmware/libertas
    echo $helper > $fsmount/root/helper_name
 fi
+# copy the scipt to execute in the chroot to a known path
+cp $oobdir/modules/debian/preimage.60.add_xo_config.inchroot.sh $fsmount/root
 
