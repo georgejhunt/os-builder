@@ -10,3 +10,4 @@ fi
 if [ ! -z \$desktop ]; then
    apt-get install -y \$desktop iceweasel epiphany-browser
 fi
+EOF

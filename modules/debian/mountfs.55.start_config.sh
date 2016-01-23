@@ -74,6 +74,4 @@ if [ ! -z $helper_url ]; then
    cp -p $cachedir/kernels/$helper $fsmount/lib/firmware/libertas
    echo $helper > $fsmount/root/helper_name
 fi
-# copy the scipt to execute in the chroot to a known path
-cp $oobdir/modules/debian/preimage.60.add_xo_config.inchroot.sh $fsmount/root
 
