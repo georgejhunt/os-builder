@@ -4,6 +4,6 @@
 
 # communicate the desktop choice to the chroot 
 mkdir -p $fsmount/root
-echo xfce > $fsmount/root/desktop 
+echo xfce4 > $fsmount/root/desktop 
 
 

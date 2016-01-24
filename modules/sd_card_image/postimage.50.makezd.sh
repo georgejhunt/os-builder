@@ -8,17 +8,23 @@ make_zd=$(read_config sd_card_image make_zd)
 osname=$(image_name)
 customization_info=$(read_config global customization_info)
 
+# substitute _ for any blanks in customization_info
+info=
+for token in $customization_info;do
+  info=$(echo "${info}_${token}")
+done
+
 function make_zd() {
 	local ext=$1
 	[ -z "$ext" ] && ext="zd"
 
-	local output_name=$osname.$ext
+	local output_name=$osname.$ext$info
 	local diskimg=$intermediatesdir/$output_name.disk.img
 	local output=$outputdir/$output_name
 
 	if [[ "$make_zd" == 1 ]]; then
 		echo "Making ZD image for $output_name..."
-		$bindir/zhashfs 0x20000 sha256 $diskimg $output.zsp $output.$customization_info
+		$bindir/zhashfs 0x20000 sha256 $diskimg $output.zsp $output
 
 		echo "Creating MD5sum of $output_name..."
 		pushd $outputdir >/dev/null

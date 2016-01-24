@@ -11,6 +11,7 @@ fi
 
 # I've not discovered how to re-enter a chroot once I've return from one --so
 #  we accumulate all the chroot tasks, and do them all at once
+echo "writing debian instructions to $intermediatesdir/do_in_chroot"
 cat << EOF > $intermediatesdir/do_in_chroot
 # set up a hostname
 HOSTNAME=debian_xo1

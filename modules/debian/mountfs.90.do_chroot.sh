@@ -15,7 +15,7 @@ for f in proc sys dev ; do mkdir -p $fsmount/$f ; done
 for f in proc sys dev ; do mount --bind /$f $fsmount/$f ; done
 cp /etc/resolv.conf $fsmount/etc
 
-chroot $fsmount /root/do_in-chroot
+chroot $fsmount /root/do_in_chroot
 
 for f in proc sys dev ; do umount -lf $fsmount/$f ; done
 
