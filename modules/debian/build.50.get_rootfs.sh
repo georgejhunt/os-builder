@@ -14,13 +14,19 @@ mirror=$(read_config debian mirror)
 xo_type=$(read_laptop_model_number)
 
 # complain if build essentials are missing which -> more instructive messages
-for x in make debootstrap gcc zip; do
-   which $x >/dev/null
+missing=
+for x in debootstrap make gcc zip; do
+   which $x >/dev/null || missing="$x, $missing"
    if [ $? -ne 0 ]; then
       echo -e "\nPlease install $x and run the script again"
       exit 1
    fi
 done
+if [ ! -z "$missing" ]; then
+    missing=${missing:: -2}
+    echo -e "\nMissing packages, please install $missing." >&2
+    exit 1
+fi
 
 cat <<EOF >/tmp/ms.conf
 [General]
