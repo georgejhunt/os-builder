@@ -30,6 +30,9 @@ case $xo_type in
       kernel_url=$(read_config debian kernel_ap)
   fi
   ;;
+4)
+    kernel_url=$(read_config debian kernel4)
+  ;;
 esac
 
 # which firmware? based upon model and wifi
@@ -49,6 +52,9 @@ case $xo_type in
      helper_url=$(read_config debian firmware_tf_helper)
   fi
   ;;
+4)
+     firmware_url=$(read_config debian firmware4)
+     ;;
 esac
 
 # get the kernel if it is not already in the cache
@@ -62,6 +68,7 @@ fi
 kernel=${kernel_url##*/}
 mkdir -p $fsmount/root
 echo $kernel > $fsmount/root/kernel_name 
+echo xo_type > $fsmount/root/xo_type 
 cp -p $cachedir/kernels/$kernel $fsmount
 firmware=${firmware_url##*/}
 mkdir -p $fsmount/lib/firmware/libertas
@@ -69,9 +76,16 @@ cp -p $cachedir/kernels/$firmware $fsmount/lib/firmware
 cp -p $cachedir/kernels/$firmware $fsmount/lib/firmware/libertas
 echo $firmware > $fsmount/root/firmware_name
 if [ ! -z $helper_url ]; then
-   helper=${firmware_url##*/}
+   helper=${helper_url##*/}
    cp -p $cachedir/kernels/$helper $fsmount/lib/firmware
    cp -p $cachedir/kernels/$helper $fsmount/lib/firmware/libertas
    echo $helper > $fsmount/root/helper_name
+fi
+if [ $xo_type -eq 4 ]; then
+   mkdir -p $fsmount/lib/firmware/mrvl
+   firmware_url=$(read_config debian firmware4)
+   fetch_file $firmware_url
+   firmware=${firmware_url##*/}
+   cp -p $cachedir/kernels/$firmware $fsmount/lib/firmware/mrvl
 fi
 

@@ -3,6 +3,7 @@
 # for debian builds, we're not actually mounting an image, we're copying a tree
 . $OOB__shlib
 
+xo_type=$(read_laptop_model_number)
 umount $fsmount &>/dev/null || :
 	
 echo "Copying cached Rootfs to fsmount (where osb expects) filesystem image..."
@@ -10,7 +11,12 @@ if [ ! -z $fsmount ]; then
     rm -rf $fsmount
 fi
 mkdir -p $fsmount
-if [ ! -f $fsmount/root/debian_cache ]; then
+case $xo_type in
+0,1)
     cp -rp $cachedir/rootfs/* $fsmount
-fi
+    ;;
+4)
+    cp -rp $cachedir/arm_rootfs/* $fsmount
+    ;;
+esac
 
