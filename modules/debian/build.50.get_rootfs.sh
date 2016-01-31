@@ -4,6 +4,11 @@
 # the following sources os-builder-root/lib/shlib.sh (OOB__shlib is in env)
 . $OOB__shlib
 
+if [ -z $fsmount ]; then
+    . /root/os-builder/build/intermediates/env
+    . /root/os-builder/lib/shlib.sh
+fi
+
 debian_release=$(read_config debian debian_release)
 mirror=$(read_config debian mirror)
 xo_type=$(read_laptop_model_number)
@@ -17,19 +22,6 @@ for x in make debootstrap gcc zip; do
    fi
 done
 
-case $xo_type in
-0,1)
-    mkdir -p $cachedir/rootfs
-    if [ ! -f $cachedir/rootfs/root/debian_cache ];then
-      mkdir -p $cachedir/rootfs/root
-      mkdir -p $cachedir/arm_rootfs/root
-      multistrap -a i386 -d $cachedir/rootfs -f /tmp/ms.conf
-#      debootstrap --arch i386 $debian_release $cachedir/rootfs $mirror 
-      echo "This file may be deleted. It was used during automated build" > \
-                    $cachedir/rootfs/root/debian_cache
-    fi
-    ;;
-4)
 cat <<EOF >/tmp/ms.conf
 [General]
 unpack=true
@@ -47,6 +39,20 @@ keyring=debian-archive-keyring
 suite=jessie
 EOF
 
+echo xo_type=$xo_type
+case $xo_type in
+0 | 1 )
+    mkdir -p $cachedir/rootfs
+    if [ ! -f $cachedir/rootfs/root/debian_cache ];then
+      mkdir -p $cachedir/rootfs/root
+      mkdir -p $cachedir/arm_rootfs/root
+      multistrap -a i386 -d $cachedir/rootfs -f /tmp/ms.conf
+#      debootstrap --arch i386 $debian_release $cachedir/rootfs $mirror 
+      echo "This file may be deleted. It was used during automated build" > \
+                    $cachedir/rootfs/root/debian_cache
+    fi
+    ;;
+4 )
     mkdir -p $cachedir/arm_rootfs
     if [ ! -f $cachedir/arm_rootfs/root/debian_cache ];then
       mkdir -p $cachedir/arm_rootfs/root

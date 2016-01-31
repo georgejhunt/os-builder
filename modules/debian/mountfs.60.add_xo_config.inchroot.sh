@@ -106,10 +106,10 @@ kernel=\$(cat /root/kernel_name)
 kernel_id=\${kernel#"kernel-"}
 
 case \$xo_type in
-0,1)
+0 | 1 )
   kernel_nibble=\${kernel_id%".i686.rpm"}
   ;;
-2,4)
+2 | 4)
   kernel_nibble=\${kernel_id%".armv7hl.rpm"}
   ;;
 esac

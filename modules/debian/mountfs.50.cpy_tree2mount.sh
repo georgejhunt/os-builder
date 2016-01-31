@@ -12,10 +12,10 @@ if [ ! -z $fsmount ]; then
 fi
 mkdir -p $fsmount
 case $xo_type in
-0,1)
+0 | 1 )
     cp -rp $cachedir/rootfs/* $fsmount
     ;;
-4)
+4 )
     cp -rp $cachedir/arm_rootfs/* $fsmount
     ;;
 esac

@@ -20,17 +20,17 @@ function fetch_file {
 # which kernel? based upon model and wifi
 xo_type=$(read_laptop_model_number)
 case $xo_type in
-0)
+0 )
     kernel_url=$(read_config debian kernel0)
   ;;
-1)
+1 )
   if [ "$wifi_function" = "client" ]; then
       kernel_url=$(read_config debian kernel1)
   else
       kernel_url=$(read_config debian kernel_ap)
   fi
   ;;
-4)
+4 )
     kernel_url=$(read_config debian kernel4)
   ;;
 esac
@@ -39,10 +39,10 @@ esac
 xo_type=$(read_laptop_model_number)
 helper_url=
 case $xo_type in
-0)
+0 )
     firmware_url=$(read_config debian firmware0)
   ;;
-1)
+1 )
   if [ $wifi_function = "client" ]; then
       firmware_url=$(read_config debian firmware1)
       helper_url=$(read_config debian firmware1_helper)
@@ -52,7 +52,7 @@ case $xo_type in
      helper_url=$(read_config debian firmware_tf_helper)
   fi
   ;;
-4)
+4 )
      firmware_url=$(read_config debian firmware4)
      ;;
 esac

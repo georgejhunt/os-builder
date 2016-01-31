@@ -430,7 +430,7 @@ def main():
     op.add_option('--no-clean-output', dest="clean_output",
                   action="store_false", default=True,
                   help="Don't clean output directory on startup")
-    op.add_option('--no-clean-intermediates', dest="clean_intermediates",
+    op.add_option('-i', '--no-clean-intermediates', dest="clean_intermediates",
                   action="store_false", default=True,
                   help="Don't clean intermediates directory on startup or exit")
     op.add_option('--cache-only', dest="cacheonly",
