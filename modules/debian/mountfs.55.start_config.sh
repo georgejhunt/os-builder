@@ -68,7 +68,7 @@ fi
 kernel=${kernel_url##*/}
 mkdir -p $fsmount/root
 echo $kernel > $fsmount/root/kernel_name 
-echo xo_type > $fsmount/root/xo_type 
+echo $xo_type > $fsmount/root/xo_type 
 cp -p $cachedir/kernels/$kernel $fsmount
 firmware=${firmware_url##*/}
 mkdir -p $fsmount/lib/firmware/libertas

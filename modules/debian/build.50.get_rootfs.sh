@@ -52,8 +52,8 @@ case $xo_type in
     if [ ! -f $cachedir/rootfs/root/debian_cache ];then
       mkdir -p $cachedir/rootfs/root
       mkdir -p $cachedir/arm_rootfs/root
-      multistrap -a i386 -d $cachedir/rootfs -f /tmp/ms.conf
-#      debootstrap --arch i386 $debian_release $cachedir/rootfs $mirror 
+#      multistrap -a i386 -d $cachedir/rootfs -f /tmp/ms.conf
+      debootstrap --arch i386 $debian_release $cachedir/rootfs $mirror 
       echo "This file may be deleted. It was used during automated build" > \
                     $cachedir/rootfs/root/debian_cache
     fi
