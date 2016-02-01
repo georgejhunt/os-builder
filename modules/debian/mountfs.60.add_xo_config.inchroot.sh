@@ -51,6 +51,8 @@ if [ \$? -ne 0 ]; then
    echo vm.swappiness=5 >> \$fsmount/etc/sysctl.conf
 fi
 
+apt-get -y install sudo wget rpm2cpio cpio initramfs-tools locales wpasupplicant  olpc-kbdshim olpc-powerd olpc-xo1-hw openssl openssh-client openssh-server
+
 if [ ! -f /swapfile ]; then
   dd if=/dev/zero of=/swapfile bs=1M count=512
   mkswap /swapfile
@@ -99,6 +101,7 @@ if [ ! \$? -eq 0 ]; then
 fi
 
 # install the kernel
+cd /
 rpm2cpio kernel*.rpm |cpio -idv
 sync
 cd /boot
